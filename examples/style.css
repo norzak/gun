@@ -44,6 +44,11 @@ ul, li {
 }
 
 .model, .none { display: none }
+.hide { 
+  opacity: 0;
+  visibility: hidden;
+  transition: all 2s;
+}
 
 .page {
   width: 100%;
@@ -81,8 +86,7 @@ ul, li {
   padding: 3%;
 }
 .gully {
-  margin-top: 2em;
-  margin-bottom: 2em;
+  margin-bottom: 1%;
 }
 
 .sit { margin-bottom: 0; }
@@ -325,4 +329,24 @@ ul, li {
   0% {opacity: 1;}
   50% {opacity: 0.5;}
   100% {opacity: 1;}
+}
+
+
+.joy {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+  background: url(https://cdn.jsdelivr.net/npm/gun/examples/pop.png) no-repeat;
+  background-position: -2800px 0;
+  pointer-events: none;
+  z-index: 999999999;
+  animation: joy 1s steps(28);
+}
+@keyframes joy {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -2800px 0;
+  }
 }
