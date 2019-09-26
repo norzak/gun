@@ -11,7 +11,7 @@ Gun.chain.get = function(key, cb, as){
 		gun = gun.$;
 	} else
 	if(key instanceof Function){
-		if(true === cb){ return soul(this, key, cb, as) }
+		if(true === cb){ return soul(this, key, cb, as), this }
 		gun = this;
 		var at = gun._, root = at.root, tmp = root.now, ev;
 		as = cb || {};
@@ -32,12 +32,18 @@ Gun.chain.get = function(key, cb, as){
 	} else
 	if(tmp = rel.is(key)){
 		return this.get(tmp, cb, as);
+	} else
+	if(obj.is(key)){
+		gun = this;
+		if(tmp = ((tmp = key['#'])||empty)['='] || tmp){ gun = gun.get(tmp) }
+		gun._.lex = key;
+		return gun;
 	} else {
 		(as = this.chain())._.err = {err: Gun.log('Invalid get request!', key)}; // CLEAN UP
 		if(cb){ cb.call(as, as._.err) }
 		return as;
 	}
-	if(tmp = cat.stun){ // TODO: Refactor?
+	if(tmp = this._.stun){ // TODO: Refactor?
 		gun._.stun = gun._.stun || tmp;
 	}
 	if(cb && cb instanceof Function){
@@ -62,16 +68,22 @@ function cache(key, back){
 }
 function soul(gun, cb, opt, as){
 	var cat = gun._, acks = 0, tmp;
-	if(tmp = cat.soul){ return cb(tmp, as, cat), gun }
-	if(tmp = cat.link){ return cb(tmp, as, cat), gun }
-	gun.get(function(msg, ev){
-		if(u === msg.put && (tmp = (obj_map(cat.root.opt.peers, function(v,k,t){t(k)})||[]).length) && ++acks < tmp){
+	if(tmp = cat.soul || cat.link || cat.dub){ return cb(tmp, as, cat) }
+	if(cat.jam){ return cat.jam.push([cb, as]) }
+	cat.jam = [[cb,as]];
+	gun.get(function(msg, eve){
+		if(u === msg.put && (tmp = Object.keys(cat.root.opt.peers).length) && ++acks < tmp){
 			return;
 		}
-		ev.rid(msg);
+		eve.rid(msg);
 		var at = ((at = msg.$) && at._) || {};
-		tmp = at.link || at.soul || rel.is(msg.put) || node_soul(msg.put) || at.dub;
-		cb(tmp, as, msg, ev);
+		tmp = cat.jam; Gun.obj.del(cat, 'jam');
+		Gun.obj.map(tmp, function(as, cb){
+			cb = as[0]; as = as[1];
+			if(!cb){ return }
+			var id = at.link || at.soul || rel.is(msg.put) || node_soul(msg.put) || at.dub;
+			cb(id, as, msg, eve);
+		});
 	}, {out: {get: {'.':true}}});
 	return gun;
 }
